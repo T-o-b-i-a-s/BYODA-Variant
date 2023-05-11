@@ -85,8 +85,6 @@ sed -i "s/$OLDMANIFESTSTRING/$NEWMANIFESTSTRING/g" $tmpdir/decompiled/AndroidMan
 # Current APKTool seems to not work properly with the usesPermissionFlags option, so remove it for now
 sed -i "s/<uses\-permission android\:name=\"android\.permission\.BLUETOOTH_SCAN\" android\:usesPermissionFlags=\"0x00010000\"\/>/<uses\-permission android\:name=\"android\.permission\.BLUETOOTH_SCAN\"\/>/g" $tmpdir/decompiled/AndroidManifest.xml
 
-#echo "s/$OLDMANIFESTSTRING/$NEWMANIFESTSTRING/g"
-
 OLDAPKTOOLSTRING="renameManifestPackage\: null"
 NEWAPKTOOLSTRING="renameManifestPackage\: com\.$NEWNAME$ENDINGESCAPED"
 
@@ -97,6 +95,7 @@ sed -i "s/$OLDAPKTOOLSTRING/$NEWAPKTOOLSTRING/g" $tmpdir/decompiled/apktool.yml
 echo "Replacing class names and internal references to class names ..."
 
 mv $tmpdir/decompiled/smali/com/$OLDNAME $tmpdir/decompiled/smali/com/$NEWNAME
+mv $tmpdir/decompiled/smali_classes3/com/$OLDNAME $tmpdir/decompiled/smali_classes3/com/$NEWNAME
 
 grep -rl Lcom/$OLDNAME/ $tmpdir/decompiled | xargs sed -i "s/Lcom\/$OLDNAME\//Lcom\/$NEWNAME\//g"
 grep -rl com\.$OLDNAME\. $tmpdir/decompiled | xargs sed -i "s/com\.$OLDNAME\./com\.$NEWNAME\./g"
@@ -105,7 +104,9 @@ grep -rl \$com\$$OLDNAME $tmpdir/decompiled | xargs sed -i "s/\$com\$$OLDNAME/\$
 grep -rl '<string name="app_name">Dexcom G6</string>' $tmpdir/decompiled | xargs sed -i "s/<string name=\"app_name\">Dexcom G6<\/string>/<string name=\"app_name\">Dexcom G6 Var$2<\/string>/g"
 
 
-echo "Generating Images ..."
+# Generate Images
+
+echo "Gernerating Images ..."
 
 convert $tmpdir/decompiled/res/drawable-xxxhdpi/ic_app_mgdl.png -pointsize 58 -fill white -annotate +80+105 "$2" $tmpdir/ic_app_mgdl.png
 convert $tmpdir/decompiled/res/drawable-xxxhdpi/ic_app_mmoll.png -pointsize 58 -fill white -annotate +80+105 "$2" $tmpdir/ic_app_mmoll.png
@@ -125,12 +126,11 @@ convert $tmpdir/ic_app_mmoll.png -resize 96x96 $tmpdir/decompiled/res/drawable-x
 convert $tmpdir/ic_app_mgdl.png -resize 144x144 $tmpdir/decompiled/res/drawable-xxhdpi/ic_app_mgdl.png
 convert $tmpdir/ic_app_mmoll.png -resize 144x144 $tmpdir/decompiled/res/drawable-xxhdpi/ic_app_mmoll.png
 
-echo "Building APK ..."
+echo "Recompiling APK ..."
 
 java -jar apktool.jar b $tmpdir/decompiled/ -o $tmpdir/BYODA_Var$2.apk
 java -jar uber-apk-signer.jar -a $tmpdir/BYODA_Var$2.apk --ks $KEYSTORE --ksAlias $KEYALIAS -o $tmpdir/SignedAPK/
 
-
-
-
+echo "The new APK can be found in directory $tmpdir/SignedAPK/"
+ls -la $tmpdir/SignedAPK/*.apk
 
