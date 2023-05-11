@@ -9,6 +9,8 @@ does not work, the process terminates after 30 minutes of unsuccessful scanning.
 * Linux System with Bash
 * Java
 * `convert` command from ImageMagick 
+* BYODA APK file
+* Java Keystore to sign the Variant APK file (can be the same that is used for "Build Signed APK" command in Android Studio)
 
 # Usage
 Usage: `./Create_BYODA_Variant.sh <Filename of BYODA apk> <Variant number (1-9)> <Optional: Directory name>`
